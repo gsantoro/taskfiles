@@ -1,0 +1,25 @@
+version: "3"
+
+includes:
+  helm:
+    taskfile: ./helm.taskfile.yml
+    dir: ".." # NOTE: when including another taskfile you need to go up one dir to point to root
+    internal: true
+    vars:
+      HELM_REPO_NAME: prometheus-community
+      HELM_REPO_URL: https://prometheus-community.github.io/helm-charts
+      HELM_RELEASE: prometheus-server
+      HELM_CHART: prometheus-community/prometheus
+      HELM_NAMESPACE: default
+      HELM_PARAMS: --wait
+
+tasks:
+  up:
+    cmds:
+      - task: helm:up
+      - open http://localhost:8082
+      - kubectl -n default port-forward svc/prometheus-server-server 8082:80
+
+  down:
+    cmds:
+      - task: helm:down

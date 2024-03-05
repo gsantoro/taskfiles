@@ -1,0 +1,14 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  init:
+    cmds:
+      - mkdir -p {{.SECRETS_FOLDER_NAME}}
+      - mkdir -p {{.STATE_FOLDER_NAME}}
+      - mkdir -p {{.TMP_FOLDER_NAME}}
+    status:
+      - test -d {{.SECRETS_FOLDER_NAME}}
+      - test -d {{.STATE_FOLDER_NAME}}
+      - test -d {{.TMP_FOLDER_NAME}}

@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  install:
+    cmds:
+      - nix-env -iA cachix -f https://cachix.org/api/v1/install
+      - echo "trusted-users = root {{.WHOAMI}}" | sudo tee -a /etc/nix/nix.conf && sudo pkill nix-daemon
+      - cachix use devenv
+      - nix-env -if https://github.com/cachix/devenv/tarball/latest
+    vars:
+      WHOAMI: 
+        sh: whoami
+
+  init:
+    cmds:
+      - devenv init
+
+  update:
+    cmds: 
+      - devenv update
+
+  # Note: t devenv:search -- gofmt
+  search:
+    cmds:
+      - devenv search {{.CLI_ARGS}}

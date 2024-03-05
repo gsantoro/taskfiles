@@ -1,0 +1,80 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  helm: ./helm.taskfile.yml
+
+tasks:  
+  ns-create:
+    cmds:
+      - kubectl create ns ingress-nginx
+    ignore_error: true
+
+  ns-delete:
+    cmds:
+      - kubectl delete --ignore-not-found=true ns ingress-nginx
+    ignore_error: true
+
+  install:
+    cmds:
+      - task: ns-create
+      - task: helm:repo:add
+        vars:
+          HELM_REPO_NAME: ingress-nginx 
+          HELM_REPO_URL: https://kubernetes.github.io/ingress-nginx
+      - task: helm:install
+        vars:
+          HELM_RELEASE: ingress-nginx
+          HELM_CHART: ingress-nginx/ingress-nginx
+          HELM_NAMESPACE: ingress-nginx
+
+
+  uninstall:
+    cmds: 
+      - task: helm:uninstall 
+        vars:
+          HELM_RELEASE: ingress-nginx
+          HELM_NAMESPACE: ingress-nginx
+      - task: ns-delete
+
+
+  # Demo app
+  up:
+    cmds:
+      - task: demo-svc
+      - sleep 20
+      - task: demo-ingress
+      - task: demo-client
+
+  down:
+    cmds:
+      - task: demo-svc-remove
+      - task: demo-ingress-remove
+      - task: demo-client-remove
+
+  demo-svc:
+    cmds:
+      - kubectl apply -f {{.NGINX_INGRESS_DEMO_ROOT}}/deployment.yaml
+      - kubectl apply -f {{.NGINX_INGRESS_DEMO_ROOT}}/service.yaml
+
+  demo-svc-remove:
+    cmds:
+      - kubectl delete --ignore-not-found=true -f {{.NGINX_INGRESS_DEMO_ROOT}}/deployment.yaml
+      - kubectl delete --ignore-not-found=true -f {{.NGINX_INGRESS_DEMO_ROOT}}/service.yaml
+
+  demo-ingress:
+    cmds:
+      - kubectl apply -f {{.NGINX_INGRESS_DEMO_ROOT}}/ingress.yaml
+
+  demo-ingress-remove:
+    cmds:
+      - kubectl delete --ignore-not-found=true -f {{.NGINX_INGRESS_DEMO_ROOT}}/ingress.yaml
+
+  demo-client:
+    cmds:
+      - kubectl apply -f {{.NGINX_INGRESS_DEMO_ROOT}}/client.yaml
+
+  demo-client-remove:
+    cmds:
+      - kubectl delete --ignore-not-found=true -f {{.NGINX_INGRESS_DEMO_ROOT}}/client.yaml

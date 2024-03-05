@@ -1,0 +1,59 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  k8s:
+    taskfile: ./k8s.taskfile.yml
+    internal: true
+    vars:
+      K8S_IMAGE_PREFIX: "kindest/node:"
+
+tasks:
+  load-image:
+    cmds:
+      - kind load docker-image --name {{.K8S_CLUSTER_NAME}} {{.IMAGE_NAME}}
+    requires:
+      vars:
+        - IMAGE_NAME
+        - K8S_CLUSTER_NAME
+
+  create:
+    summary: |
+      Create a single node k8s cluster called `kind-kind`
+    internal: true
+    deps:
+      - down
+    cmds:
+      - |
+        kind create cluster \
+          --image=kindest/node:{{.KUBERNETES_VERSION}} \
+          --name "{{.K8S_CLUSTER_NAME}}" \
+          --config {{.K8S_CLUSTER_CONFIG}}
+    requires:
+      vars:
+        - KUBERNETES_VERSION
+        - K8S_CLUSTER_NAME
+        - K8S_CLUSTER_CONFIG
+
+  # setup
+  up:
+    summary: |
+      Setup a k8s cluster
+
+      1. Create k8s cluster
+      2. Setup kube-state-metrics
+    cmds:
+      - task: create
+      - task: k8s:kube-state-metrics-create
+
+  down:
+    summary: |
+      Teardown the k8s cluster
+    cmds:
+      - |
+        kind delete cluster \
+          --name "{{.K8S_CLUSTER_NAME}}"
+    requires:
+      vars:
+        - K8S_CLUSTER_NAME

@@ -1,0 +1,55 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 10250
+    hostPort: 10250
+  kubeadmConfigPatches:
+    - |
+      kind: KubeProxyConfiguration
+      metricsBindAddress: "0.0.0.0"
+    - |-
+      kind: ClusterConfiguration
+      # configure controller-manager bind address
+      controllerManager:
+        extraArgs:
+          bind-address: 0.0.0.0
+      # configure etcd metrics listen address
+      etcd:
+        local:
+          extraArgs:
+            listen-metrics-urls: http://0.0.0.0:2381
+      # configure scheduler bind address
+      scheduler:
+        extraArgs:
+          bind-address: 0.0.0.0
+    - |-
+      kind: KubeProxyConfiguration
+      # configure proxy metrics bind address
+      metricsBindAddress: 0.0.0.0
+    - |
+      kind: ClusterConfiguration
+      apiServer:
+          # enable auditing flags on the API server
+          extraArgs:
+            audit-log-path: /var/log/kubernetes/kube-apiserver-audit.log
+            audit-policy-file: /etc/kubernetes/policies/audit-policy.yaml
+          # mount new files / directories on the control plane
+          extraVolumes:
+            - name: audit-policies
+              hostPath: /etc/kubernetes/policies
+              mountPath: /etc/kubernetes/policies
+              readOnly: true
+              pathType: "DirectoryOrCreate"
+            - name: "audit-logs"
+              hostPath: "/var/log/kubernetes"
+              mountPath: "/var/log/kubernetes"
+              readOnly: false
+              pathType: DirectoryOrCreate
+  # mount the local file on the control plane
+  extraMounts:
+  - hostPath: ./configs/audit-policy.yaml
+    containerPath: /etc/kubernetes/policies/audit-policy.yaml
+    readOnly: true
+# - role: worker
