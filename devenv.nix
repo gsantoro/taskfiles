@@ -6,5 +6,6 @@
     pkgs.git 
     pkgs.k3d
     pkgs.gum
+    pkgs.kubernetes-helm
   ];
 }

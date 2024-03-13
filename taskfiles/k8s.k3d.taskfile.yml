@@ -55,17 +55,17 @@ tasks:
   traefik:pf:
     cmds:
       - kubectl -n kube-system port-forward deployment/traefik {{.TRAEFIK_LOCAL_PORT}}:{{.TRAEFIK_PORT}}
-  requires:
-    vars:
-      - TRAEFIK_PORT
-      - TRAEFIK_LOCAL_PORT
+    requires:
+      vars:
+        - TRAEFIK_PORT
+        - TRAEFIK_LOCAL_PORT
 
   traefik:dashboard:
     cmds:
       - open http://localhost:{{.TRAEFIK_LOCAL_PORT}}/dashboard/
-  requires:
-    vars:
-      - TRAEFIK_LOCAL_PORT
+    requires:
+      vars:
+        - TRAEFIK_LOCAL_PORT
 
   load-image:
     cmds:
