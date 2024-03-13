@@ -5,5 +5,6 @@
   packages = [ 
     pkgs.git 
     pkgs.k3d
+    pkgs.gum
   ];
 }

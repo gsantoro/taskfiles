@@ -21,12 +21,19 @@ tasks:
       - delete
     cmds:
       - k3d cluster create {{.K8S_CLUSTER_NAME}} --image rancher/k3s:{{.K3D_CLUSTER_VERSION}} -p "8081:80@loadbalancer"
+    requires:
+      vars:
+        - K8S_CLUSTER_NAME
+        - K3D_CLUSTER_VERSION
 
   delete:
     summary: |
       Delete a multi node k8s cluster
     cmds:
       - k3d cluster delete {{.K8S_CLUSTER_NAME}}
+    requires:
+      vars:
+        - K8S_CLUSTER_NAME
 
   # setup
   up:
@@ -48,17 +55,35 @@ tasks:
   traefik:pf:
     cmds:
       - kubectl -n kube-system port-forward deployment/traefik {{.TRAEFIK_LOCAL_PORT}}:{{.TRAEFIK_PORT}}
+  requires:
+    vars:
+      - TRAEFIK_PORT
+      - TRAEFIK_LOCAL_PORT
 
   traefik:dashboard:
     cmds:
       - open http://localhost:{{.TRAEFIK_LOCAL_PORT}}/dashboard/
+  requires:
+    vars:
+      - TRAEFIK_LOCAL_PORT
 
   load-image:
     cmds:
       - k3d image load {{.IMAGE_NAME}} -c {{.K8S_CLUSTER_NAME}}
+    requires:
+      vars:
+        - IMAGE_NAME
+        - K8S_CLUSTER_NAME
 
   load-image-with-repo:
     cmds:
       - task: load-image
         vars:
           IMAGE_NAME: "{{.DOCKER_REPOSITORY}}/{{.DOCKER_USER}}/{{.IMAGE_NAME}}:{{.IMAGE_TAG}}"
+    requires:
+      vars:
+        - DOCKER_REPOSITORY
+        - DOCKER_USER
+        - IMAGE_NAME
+        - IMAGE_TAG
+        - K8S_CLUSTER_NAME
