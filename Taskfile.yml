@@ -1,0 +1,17 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  KUBERNETES_VERSION: v1.24.0
+
+includes:
+  devenv: taskfiles/devenv.taskfile.yml
+  folders: taskfiles/folders.taskfile.yml
+  helm: taskfiles/helm.taskfile.yml
+  ingress-nginx: taskfiles/ingress-nginx.local.taskfile.yml
+  k8s.k3d: taskfiles/k8s.k3d.taskfile.yml
+  k8s.kind: taskfiles/k8s.kind.taskfile.yml
+  k8s: taskfiles/k8s.taskfile.yml
+  nix: taskfiles/nix.taskfile.yml
+  prometheus: taskfiles/prometheus.taskfile.yml

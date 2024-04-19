@@ -1,12 +1,12 @@
 version: '3'
 
+vars:
+  NIX_EXTRA_FLAGS: --extra-experimental-features nix-command --extra-experimental-features flakes
+
 tasks:
   install:
     cmds:
-      - nix-env -iA cachix -f https://cachix.org/api/v1/install
-      - echo "trusted-users = root {{.WHOAMI}}" | sudo tee -a /etc/nix/nix.conf && sudo pkill nix-daemon
-      - cachix use devenv
-      - nix-env -if https://github.com/cachix/devenv/tarball/latest
+      - nix profile install --accept-flake-config nixpkgs#devenv {{.NIX_EXTRA_FLAGS}}
     vars:
       WHOAMI: 
         sh: whoami
