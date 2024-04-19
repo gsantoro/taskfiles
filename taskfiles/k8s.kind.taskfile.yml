@@ -45,7 +45,7 @@ tasks:
       2. Setup kube-state-metrics
     cmds:
       - task: create
-      - task: k8s:kube-state-metrics-create
+      - task: k8s:ksm:create
 
   down:
     summary: |

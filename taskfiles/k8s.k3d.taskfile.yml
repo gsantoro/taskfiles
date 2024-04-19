@@ -17,14 +17,14 @@ tasks:
   create:
     summary: |
       Create a single node k8s cluster
-    deps:
-      - delete
     cmds:
       - k3d cluster create {{.K8S_CLUSTER_NAME}} --image rancher/k3s:{{.K3D_CLUSTER_VERSION}} -p "8081:80@loadbalancer"
     requires:
       vars:
         - K8S_CLUSTER_NAME
         - K3D_CLUSTER_VERSION
+    status:
+      - k3d cluster list -o json | jq -r '.[].name' | grep {{.K8S_CLUSTER_NAME}}
 
   delete:
     summary: |
@@ -34,6 +34,9 @@ tasks:
     requires:
       vars:
         - K8S_CLUSTER_NAME
+    # Note: don't delete the cluster if it doesn't exist
+    status:
+      - k3d cluster list -o json | jq -r '.[].name' | grep -v {{.K8S_CLUSTER_NAME}}
 
   # setup
   up:
@@ -44,7 +47,7 @@ tasks:
       2. Setup kube-state-metrics
     cmds:
       - task: create
-      - task: k8s:kube-state-metrics-create
+      - task: k8s:ksm:create
 
   down:
     summary: |
