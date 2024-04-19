@@ -49,12 +49,17 @@ tasks:
 
   cleanup:
     cmds:
-      - nix profile {{.NIX_EXTRA_FLAGS}} remove {{.NIX_PROFILE_TO_REMOVE}}
+      - |
+        gum confim "Are you sure that you want to remove the Nix profile {{.NIX_PROFILE_TO_REMOVE}}?" && \
+        nix profile {{.NIX_EXTRA_FLAGS}} delete {{.NIX_PROFILE_TO_REMOVE}}
     vars:
       NIX_PROFILE_TO_REMOVE:
-        sh: nix profile {{.NIX_EXTRA_FLAGS}} list --json | jq -r '.elements[].storePaths[]' | gum filter --limit 1
+        sh: nix profile {{.NIX_EXTRA_FLAGS}} list --json | jq -r '.elements[].storePaths[]' | gum filter --placeholder "choose a nix profile to delete" --limit 1
 
   list:
     cmds:
       - nix profile {{.NIX_EXTRA_FLAGS}} list
+      
+      
+      
       
